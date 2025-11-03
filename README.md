@@ -1,55 +1,53 @@
 # nato-and-adversaries-spending
 
-Analyze military spending for NATO and strategic adversaries, with optional comparison to social spending. This repo contains data files and Jupyter notebooks to explore trends and produce plots.
+Military and social-spending analysis for NATO members and strategic adversaries.  
+The original exploratory notebook has been extracted into a reusable script so the
+figures can be reproduced without stepping through Jupyter.
 
-## What's Here
+## Repository Layout
 
-- `AnalyzeAndPlotSpending.ipynb`: Load and visualize military spending.
-- `SocialSpending.ipynb`: Explore social spending datasets (optional).
-- `military_expenditures_in_shared_of_gdp.tsv`: Tab-separated military spending dataset.
-- `SIPRI-Milex-data-1949-2024-all-countries.xlsx`: SIPRI military expenditure data (full source file).
-- `social_spending_owid.csv`, `social_spending_ssocx.csv`, `social-expenditure-as-percentage-of-gdp.csv`: Social spending datasets.
+- `src/analyze_and_plot_spending.py` – CLI for regenerating every chart.
+- `notebooks/AnalyzeAndPlotSpending.ipynb` – exploratory workflow (now referencing the organised paths).
+- `data/raw/` – source datasets from SIPRI and OECD; `data/cache/` holds Natural Earth shapefiles downloaded on demand.
+- `figures/` – generated PNG outputs.
+- `requirements.txt` – minimal runtime dependencies (pandas, geopandas, matplotlib, etc.).
 
-## Quick Start
+## Setup
 
-Prereqs: Python 3.9+, and Jupyter. Install the common libs:
-
-```
-pip install pandas seaborn matplotlib jupyter
-```
-
-Launch Jupyter:
-
-```
-jupyter notebook
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
-Open `AnalyzeAndPlotSpending.ipynb` and run all cells.
+## Regenerate Figures from the CLI
 
-## Data Notes
+All plots from the notebook can be rebuilt with one command:
 
-- The file `military_expenditures_in_shared_of_gdp.tsv` is tab-separated and contains 5 non-header lines at the top. Read it with either of the following:
-  - Use `skiprows`: `pd.read_csv('military_expenditures_in_shared_of_gdp.tsv', sep='\t', skiprows=5)`
-  - Or specify header row explicitly: `pd.read_csv('military_expenditures_in_shared_of_gdp.tsv', sep='\t', header=5)`
-- SIPRI file is large; filter to countries/years of interest before plotting to keep notebooks responsive.
-
-## Typical Workflow
-
-1. Load military data for your target countries.
-2. Clean/reshape as needed (e.g., set `Country` and `Year`, handle missing values).
-3. Plot trends with `seaborn`/`matplotlib`.
-4. Optionally merge with social spending data to compare shares of GDP.
-
-## Reproducibility
-
-- Pin your environment if desired (example):
-
-```
-pip install --require-virtualenv && python -m venv .venv && source .venv/bin/activate
-pip install pandas==2.* seaborn==0.13.* matplotlib==3.* jupyter==1.*
+```bash
+python -m analyze_and_plot_spending --plots all
 ```
 
-## License and Attribution
+Use `--plots` to target specific outputs (options: `world-change`, `europe-change`,
+`us-vs-top`, `nato-vs-adversaries`, `europe-two-percent`, `social-spending`) and
+`--top-n` to adjust how many countries are stacked against the United States.
+Charts are saved to `figures/`.
 
-- Data sources include SIPRI (military expenditure) and OWID/SSOCx (social spending). Please follow their licenses and attribution requirements.
-- Code in this repo is provided as-is; add a license file if you intend to distribute.
+## Working in Jupyter
+
+Launch Jupyter from the repository root so relative paths resolve correctly:
+
+```bash
+jupyter notebook notebooks/AnalyzeAndPlotSpending.ipynb
+```
+
+The notebook reads data from `../data/raw/` and saves exports into `../figures/`.
+
+## Data Sources & Attribution
+
+- SIPRI: `military_spending_constant_2023.csv` and `military_expenditures_in_shared_of_gdp.tsv`
+- Natural Earth: Admin-0 boundaries (downloaded automatically into `data/cache/`)
+- OECD SOCX: `social_spending_ssocx.csv`
+
+Respect the licence terms of each provider when redistributing data or derived work.
